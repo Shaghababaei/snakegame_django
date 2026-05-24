@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Snake Leaderboard</title>
+</head>
+<body>
+    <h1>Snake Leaderboard</h1>
+
+    <ol>
+        {% for score in scores %}
+            <li>
+                {{ score.player.name }} - {{ score.points }}
+            </li>
+        {% empty %}
+            <li>No scores yet.</li>
+        {% endfor %}
+    </ol>
+</body>
+</html>
