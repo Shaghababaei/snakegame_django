@@ -89,7 +89,7 @@
         li {
             counter-increment: scores;
             display: grid;
-            grid-template-columns: 52px 1fr auto;
+            grid-template-columns: 52px 46px 1fr auto;
             gap: 14px;
             align-items: center;
             min-height: 62px;
@@ -101,8 +101,7 @@
             background: rgba(255, 255, 255, 0.035);
         }
 
-        li::before {
-            content: counter(scores);
+        .rank {
             width: 34px;
             height: 34px;
             display: grid;
@@ -110,6 +109,7 @@
             border-radius: 999px;
             color: #052e16;
             background: var(--green);
+            font-size: 1.08rem;
             font-weight: 900;
         }
 
@@ -119,6 +119,29 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             font-weight: 800;
+        }
+
+        .award {
+            margin-right: 8px;
+        }
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(134, 239, 172, 0.24);
+            border-radius: 999px;
+            overflow: hidden;
+            color: #052e16;
+            background: rgba(134, 239, 172, 0.88);
+            font-weight: 900;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .points {
@@ -149,11 +172,11 @@
             }
 
             li {
-                grid-template-columns: 42px 1fr;
+                grid-template-columns: 42px 42px 1fr;
             }
 
             .points {
-                grid-column: 2;
+                grid-column: 3;
                 font-size: 1rem;
             }
         }
@@ -170,7 +193,24 @@
             <ol>
                 {% for score in scores %}
                     <li>
-                        <span class="name">{{ score.player.name }}</span>
+                        <span class="rank">{{ forloop.counter }}</span>
+                        <span class="avatar">
+                            {% if score.player.profile_image %}
+                                <img src="{{ score.player.profile_image.url }}" alt="{{ score.player.name }} profile image">
+                            {% else %}
+                                {{ score.player.name|first|upper }}
+                            {% endif %}
+                        </span>
+                        <span class="name">
+                            {% if forloop.counter == 1 %}
+                                <span class="award">🏆</span>
+                            {% elif forloop.counter == 2 %}
+                                <span class="award">🥈</span>
+                            {% elif forloop.counter == 3 %}
+                                <span class="award">🥉</span>
+                            {% endif %}
+                            {{ score.player.name }}
+                        </span>
                         <span class="points">{{ score.points }} pts</span>
                     </li>
                 {% empty %}

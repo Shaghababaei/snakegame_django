@@ -4,7 +4,7 @@ from .models import Player, Score
 # Register your models here.
 @admin.register(Player)
 class PlayerAdmin(admin.ModelAdmin):
-    list_display = ["id","name"]
+    list_display = ["id","name","profile_image"]
 
 @admin.register(Score)
 class ScoreAdmin(admin.ModelAdmin):

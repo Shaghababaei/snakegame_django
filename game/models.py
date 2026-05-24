@@ -1,8 +1,18 @@
 from django.db import models
+from django.core.validators import FileExtensionValidator
 
 # Create your models here.
 class Player(models.Model):
     name = models.CharField(max_length=100,unique=True)
+    profile_image = models.FileField(
+        upload_to="profiles/",
+        blank=True,
+        validators=[
+            FileExtensionValidator(
+                allowed_extensions=["jpg", "jpeg", "png", "gif", "webp"]
+            )
+        ],
+    )
     
     def __str__(self):
         return self.name

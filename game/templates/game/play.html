@@ -40,9 +40,24 @@
             margin: 0 auto;
             display: grid;
             grid-template-columns: minmax(280px, 360px) minmax(320px, 1fr);
+            grid-template-rows: auto 1fr;
             gap: 28px;
             align-items: center;
             padding: 32px 0;
+        }
+
+        .top-hint {
+            grid-column: 1 / -1;
+            justify-self: center;
+            margin: 0;
+            padding: 10px 16px;
+            border: 1px solid rgba(148, 163, 184, 0.24);
+            border-radius: 8px;
+            color: var(--text);
+            background: rgba(15, 23, 42, 0.58);
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-align: center;
         }
 
         .side-panel,
@@ -85,16 +100,27 @@
             line-height: 1.6;
         }
 
+        .score-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 0 0 22px;
+        }
+
         .score-card {
             display: grid;
             grid-template-columns: 1fr auto;
             gap: 8px;
             align-items: end;
-            margin: 0 0 22px;
             padding: 18px;
             border-radius: 8px;
             border: 1px solid rgba(134, 239, 172, 0.26);
             background: linear-gradient(135deg, rgba(34, 197, 94, 0.18), rgba(15, 23, 42, 0.55));
+        }
+
+        .score-card.player-two {
+            border-color: rgba(96, 165, 250, 0.32);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(15, 23, 42, 0.55));
         }
 
         .score-label {
@@ -105,7 +131,8 @@
             text-transform: uppercase;
         }
 
-        #score {
+        .score-value {
+            display: block;
             font-size: 3rem;
             font-weight: 900;
             line-height: 0.9;
@@ -120,9 +147,43 @@
             box-shadow: 0 0 20px var(--accent);
         }
 
+        .player-two .status-dot {
+            background: #60a5fa;
+            box-shadow: 0 0 20px #60a5fa;
+        }
+
         .controls {
             display: grid;
             gap: 12px;
+        }
+
+        .mode-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .mode-options label {
+            min-height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            border-radius: 8px;
+            background: rgba(15, 23, 42, 0.6);
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        .mode-options input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .mode-options label:has(input:checked) {
+            border-color: rgba(249, 115, 22, 0.72);
+            background: rgba(249, 115, 22, 0.18);
         }
 
         label {
@@ -143,9 +204,81 @@
             outline: none;
         }
 
+        input[type="file"] {
+            height: auto;
+            padding: 10px;
+            color: var(--muted);
+            cursor: pointer;
+        }
+
         input:focus {
             border-color: var(--green-bright);
             box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.16);
+        }
+
+        .profile-upload {
+            display: grid;
+            grid-template-columns: 58px 1fr;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .profile-preview {
+            width: 58px;
+            height: 58px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(134, 239, 172, 0.28);
+            border-radius: 999px;
+            overflow: hidden;
+            color: #052e16;
+            background: rgba(134, 239, 172, 0.88);
+            font-size: 1.35rem;
+            font-weight: 900;
+        }
+
+        .profile-preview img {
+            width: 100%;
+            height: 100%;
+            display: none;
+            object-fit: cover;
+        }
+
+        .profile-preview.has-image span {
+            display: none;
+        }
+
+        .profile-preview.has-image img {
+            display: block;
+        }
+
+        .profile-actions {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+            align-items: end;
+        }
+
+        .profile-actions label {
+            min-width: 0;
+        }
+
+        .save-profile {
+            min-width: 72px;
+            min-height: 40px;
+            margin-bottom: 0;
+        }
+
+        .profile-status {
+            grid-column: 1 / -1;
+            min-height: 18px;
+            color: var(--muted);
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .hidden {
+            display: none !important;
         }
 
         .button-row {
@@ -184,13 +317,6 @@
             color: var(--text);
             border: 1px solid rgba(148, 163, 184, 0.28);
             background: rgba(15, 23, 42, 0.6);
-        }
-
-        .hint {
-            margin: 16px 0 0;
-            color: var(--muted);
-            font-size: 0.9rem;
-            line-height: 1.45;
         }
 
         .board-wrap {
@@ -262,6 +388,7 @@
         @media (max-width: 860px) {
             .app-shell {
                 grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
                 align-items: start;
                 padding: 18px 0 28px;
             }
@@ -277,11 +404,16 @@
             .pad {
                 display: grid;
             }
+
+            .top-hint {
+                font-size: 0.86rem;
+            }
         }
     </style>
 </head>
 <body>
     <main class="app-shell">
+        <p class="top-hint" id="control-hint">Use arrow keys on desktop. Touch controls appear on smaller screens.</p>
         <section class="side-panel">
             <p class="eyebrow">Arcade Mode</p>
             <h1>Snake Game</h1>
@@ -289,25 +421,75 @@
 
             {% csrf_token %}
 
-            <div class="score-card" aria-live="polite">
-                <div>
-                    <span class="score-label">Score</span>
-                    <span id="score">0</span>
+            <div class="score-grid" aria-live="polite">
+                <div class="score-card">
+                    <div>
+                        <span class="score-label">Player 1 Score</span>
+                        <span class="score-value" id="score-p1">0</span>
+                    </div>
+                    <span class="status-dot" aria-hidden="true"></span>
                 </div>
-                <span class="status-dot" aria-hidden="true"></span>
+                <div class="score-card player-two player-two-only hidden">
+                    <div>
+                        <span class="score-label">Player 2 Score</span>
+                        <span class="score-value" id="score-p2">0</span>
+                    </div>
+                    <span class="status-dot" aria-hidden="true"></span>
+                </div>
             </div>
 
             <div class="controls">
+                <div class="mode-options" aria-label="Game mode">
+                    <label>
+                        <input type="radio" name="game-mode" value="single" checked>
+                        Single Player
+                    </label>
+                    <label>
+                        <input type="radio" name="game-mode" value="two">
+                        Two Players
+                    </label>
+                </div>
                 <label for="player-name">
-                    Player name
-                    <input type="text" id="player-name" maxlength="40" autocomplete="name" placeholder="Enter your name">
+                    Player 1 name
+                    <input type="text" id="player-name" maxlength="40" autocomplete="name" placeholder="Enter player 1 name">
                 </label>
+                <div class="profile-upload">
+                    <div class="profile-preview" id="player-preview" aria-label="Player 1 profile preview">
+                        <span>1</span>
+                        <img alt="Player 1 profile image preview">
+                    </div>
+                    <div class="profile-actions">
+                        <label for="player-image">
+                            Player 1 profile image optional
+                            <input type="file" id="player-image" accept="image/jpeg,image/png,image/gif,image/webp">
+                        </label>
+                        <button class="save-profile" type="button" data-save-profile="0">Save</button>
+                        <span class="profile-status" id="player-image-status">JPG, PNG, GIF, or WEBP up to 10MB.</span>
+                    </div>
+                </div>
+                <label for="player-two-name" class="player-two-only hidden">
+                    Player 2 name
+                    <input type="text" id="player-two-name" maxlength="40" autocomplete="off" placeholder="Enter player 2 name">
+                </label>
+                <div class="profile-upload player-two-only hidden">
+                    <div class="profile-preview" id="player-two-preview" aria-label="Player 2 profile preview">
+                        <span>2</span>
+                        <img alt="Player 2 profile image preview">
+                    </div>
+                    <div class="profile-actions">
+                        <label for="player-two-image">
+                            Player 2 profile image optional
+                            <input type="file" id="player-two-image" accept="image/jpeg,image/png,image/gif,image/webp">
+                        </label>
+                        <button class="save-profile" type="button" data-save-profile="1">Save</button>
+                        <span class="profile-status" id="player-two-image-status">JPG, PNG, GIF, or WEBP up to 10MB.</span>
+                    </div>
+                </div>
                 <div class="button-row">
                     <button id="start-game" type="button">Start</button>
                     <a class="button-link" href="{% url 'leaderboard' %}">Leaderboard</a>
                 </div>
             </div>
-            <p class="hint">Use arrow keys on desktop. Touch controls appear on smaller screens.</p>
         </section>
 
         <section class="game-panel" aria-label="Snake game board">
@@ -332,19 +514,37 @@
     <script>
         const canvas = document.getElementById("game");
         const ctx = canvas.getContext("2d");
-        const scoreElement = document.getElementById("score");
-        const playerNameInput = document.getElementById("player-name");
+        const scoreElements = [
+            document.getElementById("score-p1"),
+            document.getElementById("score-p2"),
+        ];
+        const playerNameInputs = [
+            document.getElementById("player-name"),
+            document.getElementById("player-two-name"),
+        ];
+        const playerImageInputs = [
+            document.getElementById("player-image"),
+            document.getElementById("player-two-image"),
+        ];
+        const profilePreviews = [
+            document.getElementById("player-preview"),
+            document.getElementById("player-two-preview"),
+        ];
+        const profileStatusElements = [
+            document.getElementById("player-image-status"),
+            document.getElementById("player-two-image-status"),
+        ];
+        const playerTwoElements = document.querySelectorAll(".player-two-only");
+        const modeInputs = document.querySelectorAll("[name=game-mode]");
+        const controlHint = document.getElementById("control-hint");
         const overlay = document.getElementById("game-overlay");
 
         const box = 30;
         const tileCount = canvas.width / box;
-        let score = 0;
         let game = null;
         let frame = 0;
-        let direction = "RIGHT";
-        let pendingDirection = "RIGHT";
-
-        let snake = [{ x: 300, y: 300 }];
+        let mode = "single";
+        let players = [];
         let food = { x: 150, y: 150 };
 
         const opposites = {
@@ -353,6 +553,25 @@
             LEFT: "RIGHT",
             RIGHT: "LEFT",
         };
+
+        const playerStyles = [
+            {
+                headStart: "#bbf7d0",
+                headEnd: "#22c55e",
+                bodyStart: "#86efac",
+                bodyEnd: "#16a34a",
+                shadow: "rgba(134, 239, 172, 0.8)",
+                eye: "#052e16",
+            },
+            {
+                headStart: "#bfdbfe",
+                headEnd: "#3b82f6",
+                bodyStart: "#93c5fd",
+                bodyEnd: "#2563eb",
+                shadow: "rgba(147, 197, 253, 0.8)",
+                eye: "#0f172a",
+            },
+        ];
 
         function getCSRFToken() {
             return document.querySelector("[name=csrfmiddlewaretoken]").value;
@@ -425,15 +644,15 @@
             ctx.fill();
         }
 
-        function drawSnake() {
-            snake.forEach((part, index) => {
+        function drawSnake(player) {
+            player.snake.forEach((part, index) => {
                 const inset = index === 0 ? 3 : 4;
                 const gradient = ctx.createLinearGradient(part.x, part.y, part.x + box, part.y + box);
-                gradient.addColorStop(0, index === 0 ? "#bbf7d0" : "#86efac");
-                gradient.addColorStop(1, index === 0 ? "#22c55e" : "#16a34a");
+                gradient.addColorStop(0, index === 0 ? player.style.headStart : player.style.bodyStart);
+                gradient.addColorStop(1, index === 0 ? player.style.headEnd : player.style.bodyEnd);
 
                 ctx.save();
-                ctx.shadowColor = index === 0 ? "rgba(134, 239, 172, 0.8)" : "rgba(34, 197, 94, 0.34)";
+                ctx.shadowColor = index === 0 ? player.style.shadow : "rgba(15, 23, 42, 0.36)";
                 ctx.shadowBlur = index === 0 ? 12 : 6;
                 roundedRect(part.x + inset, part.y + inset, box - inset * 2, box - inset * 2, 8);
                 ctx.fillStyle = gradient;
@@ -441,12 +660,12 @@
                 ctx.restore();
 
                 if (index === 0) {
-                    drawEyes(part);
+                    drawEyes(part, player);
                 }
             });
         }
 
-        function drawEyes(head) {
+        function drawEyes(head, player) {
             const eyePositions = {
                 UP: [[9, 8], [21, 8]],
                 DOWN: [[9, 22], [21, 22]],
@@ -454,8 +673,8 @@
                 RIGHT: [[22, 9], [22, 21]],
             };
 
-            ctx.fillStyle = "#052e16";
-            eyePositions[direction].forEach(([x, y]) => {
+            ctx.fillStyle = player.style.eye;
+            eyePositions[player.direction].forEach(([x, y]) => {
                 ctx.beginPath();
                 ctx.arc(head.x + x, head.y + y, 3.3, 0, Math.PI * 2);
                 ctx.fill();
@@ -469,23 +688,57 @@
                     x: Math.floor(Math.random() * tileCount) * box,
                     y: Math.floor(Math.random() * tileCount) * box,
                 };
-            } while (snake.some(part => part.x === candidate.x && part.y === candidate.y));
+            } while (players.some(player => player.snake.some(part => sameCell(part, candidate))));
             food = candidate;
         }
 
-        function setDirection(nextDirection) {
-            if (opposites[nextDirection] !== direction) {
-                pendingDirection = nextDirection;
+        function sameCell(first, second) {
+            return first.x === second.x && first.y === second.y;
+        }
+
+        function nextHead(player) {
+            const head = { ...player.snake[0] };
+
+            if (player.direction === "UP") {
+                head.y -= box;
+            } else if (player.direction === "DOWN") {
+                head.y += box;
+            } else if (player.direction === "LEFT") {
+                head.x -= box;
+            } else if (player.direction === "RIGHT") {
+                head.x += box;
             }
+
+            return head;
+        }
+
+        function createPlayer(index, snake, direction) {
+            return {
+                index,
+                snake,
+                direction,
+                pendingDirection: direction,
+                score: 0,
+                style: playerStyles[index],
+            };
         }
 
         function resetGame() {
-            score = 0;
             frame = 0;
-            scoreElement.textContent = score;
-            snake = [{ x: 300, y: 300 }];
-            direction = "RIGHT";
-            pendingDirection = "RIGHT";
+            players = [
+                createPlayer(0, [{ x: 300, y: 300 }], "RIGHT"),
+            ];
+
+            if (mode === "two") {
+                players = [
+                    createPlayer(0, [{ x: box * 4, y: box * 9 }], "RIGHT"),
+                    createPlayer(1, [{ x: box * 15, y: box * 10 }], "LEFT"),
+                ];
+            }
+
+            scoreElements.forEach(element => {
+                element.textContent = "0";
+            });
             placeFood();
             overlay.classList.add("hidden");
             drawScene();
@@ -496,94 +749,296 @@
             overlay.classList.remove("hidden");
         }
 
-        function gameOver() {
-            clearInterval(game);
-            game = null;
-            showOverlay("Game Over", `Score: ${score}. Press Start to play again.`);
+        function scoreSummary() {
+            if (mode === "single") {
+                return `Score: ${players[0].score}. Press Start to play again.`;
+            }
 
-            fetch("/api/submit_score/", {
+            const [playerOne, playerTwo] = players;
+            if (playerOne.score > playerTwo.score) {
+                return `Player 1 wins ${playerOne.score}-${playerTwo.score}. Press Start to play again.`;
+            }
+
+            if (playerTwo.score > playerOne.score) {
+                return `Player 2 wins ${playerTwo.score}-${playerOne.score}. Press Start to play again.`;
+            }
+
+            return `Tie game: ${playerOne.score}-${playerTwo.score}. Press Start to play again.`;
+        }
+
+        function submitScore(player) {
+            const name = playerNameInputs[player.index].value.trim();
+
+            if (!name) {
+                return Promise.resolve();
+            }
+
+            return fetch("/api/submit_score/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRFToken": getCSRFToken(),
                 },
                 body: JSON.stringify({
-                    name: playerNameInput.value.trim(),
-                    points: score,
+                    name,
+                    points: player.score,
                 }),
-            }).catch(error => console.error("Could not submit score", error));
+            });
+        }
+
+        function setProfileStatus(playerIndex, message) {
+            profileStatusElements[playerIndex].textContent = message;
+        }
+
+        function showProfilePreview(playerIndex, imageUrl) {
+            const preview = profilePreviews[playerIndex];
+            const image = preview.querySelector("img");
+            image.src = imageUrl;
+            preview.classList.add("has-image");
+        }
+
+        function uploadProfileImage(playerIndex) {
+            const name = playerNameInputs[playerIndex].value.trim();
+            const image = playerImageInputs[playerIndex].files[0];
+
+            if (!name) {
+                showOverlay("Name Required", `Enter player ${playerIndex + 1} name before saving.`);
+                playerNameInputs[playerIndex].focus();
+                return;
+            }
+
+            if (!image) {
+                setProfileStatus(playerIndex, "Choose an image first.");
+                return;
+            }
+
+            setProfileStatus(playerIndex, "Saving...");
+            const formData = new FormData();
+            formData.append("name", name);
+            formData.append("image", image);
+
+            fetch("/api/upload_profile_image/", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCSRFToken(),
+                },
+                body: formData,
+            })
+                .then(response => response.json().then(data => ({ ok: response.ok, data })))
+                .then(({ ok, data }) => {
+                    if (!ok) {
+                        throw new Error(data.error || "Could not save image.");
+                    }
+
+                    showProfilePreview(playerIndex, data.image_url);
+                    setProfileStatus(playerIndex, "Saved.");
+                })
+                .catch(error => {
+                    setProfileStatus(playerIndex, error.message);
+                });
+        }
+
+        function gameOver() {
+            clearInterval(game);
+            game = null;
+            showOverlay("Game Over", scoreSummary());
+
+            Promise.all(players.map(submitScore)).catch(error => console.error("Could not submit score", error));
         }
 
         function drawScene() {
             drawBoard();
             drawFood();
-            drawSnake();
+            players.forEach(drawSnake);
+        }
+
+        function isOutOfBounds(head) {
+            return (
+                head.x < 0 ||
+                head.y < 0 ||
+                head.x >= canvas.width ||
+                head.y >= canvas.height
+            );
+        }
+
+        function hasSnakeCollision(head, playerIndex) {
+            return players.some(player => {
+                return player.snake.some((part, partIndex) => {
+                    if (player.index === playerIndex && partIndex === 0) {
+                        return false;
+                    }
+
+                    return sameCell(head, part);
+                });
+            });
+        }
+
+        function hasHeadCollision(heads) {
+            return heads.length > 1 && sameCell(heads[0], heads[1]);
+        }
+
+        function hasHeadSwap(heads, oldHeads) {
+            if (
+                heads.length < 2 ||
+                oldHeads.length < 2
+            ) {
+                return false;
+            }
+
+            return sameCell(heads[0], oldHeads[1]) && sameCell(heads[1], oldHeads[0]);
         }
 
         function drawGame() {
             frame += 1;
-            direction = pendingDirection;
+            players.forEach(player => {
+                player.direction = player.pendingDirection;
+            });
 
-            const head = { ...snake[0] };
+            const oldHeads = players.map(player => ({ ...player.snake[0] }));
+            const heads = players.map(nextHead);
 
-            if (direction === "UP") {
-                head.y -= box;
-            } else if (direction === "DOWN") {
-                head.y += box;
-            } else if (direction === "LEFT") {
-                head.x -= box;
-            } else if (direction === "RIGHT") {
-                head.x += box;
-            }
+            const crashed = heads.some((head, index) => {
+                return isOutOfBounds(head) || hasSnakeCollision(head, players[index].index);
+            }) || hasHeadCollision(heads) || hasHeadSwap(heads, oldHeads);
 
-            if (
-                head.x < 0 ||
-                head.y < 0 ||
-                head.x >= canvas.width ||
-                head.y >= canvas.height ||
-                snake.some(part => head.x === part.x && head.y === part.y)
-            ) {
+            if (crashed) {
                 gameOver();
                 return;
             }
 
-            snake.unshift(head);
+            let foodWasEaten = false;
 
-            if (head.x === food.x && head.y === food.y) {
-                score += 10;
-                scoreElement.textContent = score;
+            players.forEach((player, index) => {
+                const head = heads[index];
+                player.snake.unshift(head);
+
+                if (sameCell(head, food)) {
+                    player.score += 10;
+                    scoreElements[player.index].textContent = player.score;
+                    foodWasEaten = true;
+                } else {
+                    player.snake.pop();
+                }
+            });
+
+            if (foodWasEaten) {
                 placeFood();
-            } else {
-                snake.pop();
             }
 
             drawScene();
         }
 
+        function setDirection(player, nextDirection) {
+            if (opposites[nextDirection] !== player.direction) {
+                player.pendingDirection = nextDirection;
+            }
+        }
+
+        function isTypingField(element) {
+            return (
+                element instanceof HTMLInputElement ||
+                element instanceof HTMLTextAreaElement ||
+                element.isContentEditable
+            );
+        }
+
         document.addEventListener("keydown", function(event) {
+            if (isTypingField(event.target)) {
+                return;
+            }
+
             const keyDirections = {
                 ArrowUp: "UP",
                 ArrowDown: "DOWN",
                 ArrowLeft: "LEFT",
                 ArrowRight: "RIGHT",
+                w: "UP",
+                W: "UP",
+                s: "DOWN",
+                S: "DOWN",
+                a: "LEFT",
+                A: "LEFT",
+                d: "RIGHT",
+                D: "RIGHT",
             };
 
             if (keyDirections[event.key]) {
                 event.preventDefault();
-                setDirection(keyDirections[event.key]);
+                const playerIndex = event.key.startsWith("Arrow") ? 0 : 1;
+                const player = players.find(item => item.index === playerIndex);
+
+                if (player) {
+                    setDirection(player, keyDirections[event.key]);
+                }
             }
         });
 
         document.querySelectorAll("[data-direction]").forEach(button => {
             button.addEventListener("click", function() {
-                setDirection(button.dataset.direction);
+                const player = players.find(item => item.index === 0);
+
+                if (player) {
+                    setDirection(player, button.dataset.direction);
+                }
             });
         });
 
-        document.getElementById("start-game").addEventListener("click", function () {
-            if (!playerNameInput.value.trim()) {
+        playerImageInputs.forEach((input, playerIndex) => {
+            input.addEventListener("change", function() {
+                const image = input.files[0];
+
+                if (!image) {
+                    return;
+                }
+
+                showProfilePreview(playerIndex, URL.createObjectURL(image));
+                setProfileStatus(playerIndex, "Not saved.");
+            });
+        });
+
+        document.querySelectorAll("[data-save-profile]").forEach(button => {
+            button.addEventListener("click", function() {
+                uploadProfileImage(Number(button.dataset.saveProfile));
+            });
+        });
+
+        modeInputs.forEach(input => {
+            input.addEventListener("change", function() {
+                if (game) {
+                    modeInputs.forEach(modeInput => {
+                        modeInput.checked = modeInput.value === mode;
+                    });
+                    return;
+                }
+
+                mode = input.value;
+                const isTwoPlayer = mode === "two";
+                playerTwoElements.forEach(element => {
+                    element.classList.toggle("hidden", !isTwoPlayer);
+                });
+                controlHint.textContent = isTwoPlayer
+                    ? "Player 1 uses arrow keys. Player 2 uses W A S D."
+                    : "Use arrow keys on desktop. Touch controls appear on smaller screens.";
+                showOverlay("Ready?", isTwoPlayer ? "Enter both names and press Start." : "Enter your name and press Start.");
+                players = [createPlayer(0, [{ x: 300, y: 300 }], "RIGHT")];
+                scoreElements.forEach(element => {
+                    element.textContent = "0";
+                });
+                placeFood();
+                drawScene();
+            });
+        });
+
+        function startGame() {
+            if (!playerNameInputs[0].value.trim()) {
                 showOverlay("Name Required", "Enter your name before starting.");
-                playerNameInput.focus();
+                playerNameInputs[0].focus();
+                return;
+            }
+
+            if (mode === "two" && !playerNameInputs[1].value.trim()) {
+                showOverlay("Name Required", "Enter player 2 name before starting.");
+                playerNameInputs[1].focus();
                 return;
             }
 
@@ -593,8 +1048,13 @@
 
             resetGame();
             game = setInterval(drawGame, 140);
-        });
+        }
 
+        document.getElementById("start-game").addEventListener("click", startGame);
+        document.querySelector(".board-wrap").addEventListener("click", startGame);
+
+        players = [createPlayer(0, [{ x: 300, y: 300 }], "RIGHT")];
+        placeFood();
         drawScene();
     </script>
 </body>
