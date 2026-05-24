@@ -99,8 +99,12 @@ best score.
 | --- | --- |
 | `/` | Play the Snake game |
 | `/leaderboard/` | View saved high scores |
+| `/api/leaderboard/` | Get the top 3 leaderboard users as JSON |
+| `/api/leaderboard/all/` | Get all leaderboard users as JSON |
+| `/api/users/<id>/profile_image/` | Get one user's profile image URL |
 | `/api/submit_score/` | Submit a score with JSON |
 | `/api/upload_profile_image/` | Upload a player profile image |
+| `/api/schema/swagger-ui/` | Swagger UI for the API |
 | `/admin/` | Django admin panel |
 
 ## Score API
@@ -127,7 +131,56 @@ Successful response:
 }
 ```
 
+## Leaderboard API
+
+Returns the top 3 users by best saved score. Each user includes their player id
+and profile image URL when one has been uploaded.
+
+`GET /api/leaderboard/`
+
+Use this endpoint for every leaderboard user:
+
+`GET /api/leaderboard/all/`
+
+Successful response:
+
+```json
+[
+  {
+    "id": 1,
+    "name": "Player Name",
+    "points": 120,
+    "profile_image": "http://127.0.0.1:8000/media/profiles/example.webp"
+  }
+]
+```
+
 ## Profile Image API
+
+Returns a user's profile image URL by user id.
+
+`GET /api/users/1/profile_image/`
+
+Successful response when the user has an image:
+
+```json
+{
+  "id": 1,
+  "name": "Player Name",
+  "profile_image": "http://127.0.0.1:8000/media/profiles/example.webp"
+}
+```
+
+Successful response when the user has no image:
+
+```json
+{
+  "id": 1,
+  "name": "Player Name",
+  "profile_image": null,
+  "message": "user has not image profile yet"
+}
+```
 
 Profile images are uploaded from the game screen. The upload must include a
 player name and an image file.

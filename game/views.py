@@ -1,8 +1,19 @@
-import json
 from django.db.models import OuterRef, Subquery
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
 from django.shortcuts import render
+from drf_spectacular.utils import extend_schema
+from rest_framework import status
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
+from rest_framework.response import Response
+from .serializers import (
+    ApiErrorSerializer,
+    LeaderboardUserSerializer,
+    ProfileImageResponseSerializer,
+    ProfileImageUploadRequestSerializer,
+    ProfileImageUploadResponseSerializer,
+    ScoreSubmissionRequestSerializer,
+    ScoreSubmissionResponseSerializer,
+)
 from .models import Score
 from .models import Player
 
@@ -21,8 +32,8 @@ ALLOWED_PROFILE_IMAGE_EXTENSIONS = {
 }
 MAX_PROFILE_IMAGE_SIZE = 10 * 1024 * 1024
 
-# Create your views here.
-def leaderboard(request):
+
+def get_best_scores(limit=None):
     best_score_ids = Player.objects.annotate(
         best_score_id=Subquery(
             Score.objects.filter(player=OuterRef("pk"))
@@ -33,25 +44,112 @@ def leaderboard(request):
     scores = (
         Score.objects.filter(pk__in=Subquery(best_score_ids))
         .select_related("player")
-        .order_by("-points", "-created_at")[:10]
+        .order_by("-points", "-created_at")
     )
+    if limit is not None:
+        scores = scores[:limit]
+    return scores
+
+
+def serialize_leaderboard_score(request, score):
+    profile_image = None
+    if score.player.profile_image:
+        profile_image = request.build_absolute_uri(score.player.profile_image.url)
+
+    return {
+        "id": score.player.id,
+        "name": score.player.name,
+        "points": score.points,
+        "profile_image": profile_image,
+    }
+
+
+# Create your views here.
+def leaderboard(request):
+    scores = get_best_scores(10)
     return render(request,"game/leaderboard.html",{"scores" : scores})
 
 def play(request):
     return render(request,"game/play.html")
 
-@require_POST
+
+@extend_schema(
+    responses={
+        200: LeaderboardUserSerializer(many=True),
+    },
+)
+@api_view(["GET"])
+def leaderboard_api(request):
+    users = [
+        serialize_leaderboard_score(request, score)
+        for score in get_best_scores(3)
+    ]
+
+    return Response(users)
+
+
+@extend_schema(
+    responses={
+        200: LeaderboardUserSerializer(many=True),
+    },
+)
+@api_view(["GET"])
+def leaderboard_all_api(request):
+    users = [
+        serialize_leaderboard_score(request, score)
+        for score in get_best_scores()
+    ]
+    return Response(users)
+
+
+@extend_schema(
+    responses={
+        200: ProfileImageResponseSerializer,
+        404: ApiErrorSerializer,
+    },
+)
+@api_view(["GET"])
+def profile_image_api(request, player_id):
+    player = Player.objects.filter(pk=player_id).first()
+    if player is None:
+        return Response(
+            {"error": "user not found"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    if not player.profile_image:
+        return Response({
+            "id": player.id,
+            "name": player.name,
+            "profile_image": None,
+            "message": "user has not image profile yet",
+        })
+
+    return Response({
+        "id": player.id,
+        "name": player.name,
+        "profile_image": request.build_absolute_uri(player.profile_image.url),
+    })
+
+
+@extend_schema(
+    request=ScoreSubmissionRequestSerializer,
+    responses={
+        200: ScoreSubmissionResponseSerializer,
+        400: ApiErrorSerializer,
+    },
+)
+@api_view(["POST"])
+@parser_classes([JSONParser])
 def submit_score(request):
 
-    data = json.loads(request.body)
-
-    player_name = data.get("name")
-    points = data.get("points")
+    player_name = request.data.get("name")
+    points = request.data.get("points")
 
     if not player_name or points is None:
-        return JsonResponse(
+        return Response(
             {"error": "name and points are required"},
-            status=400,
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     player, created = Player.objects.get_or_create(
@@ -72,26 +170,34 @@ def submit_score(request):
         best_score.save(update_fields=["points"])
         saved = True
 
-    return JsonResponse({
+    return Response({
         "status": "ok",
         "saved": saved,
     })
 
-@require_POST
+@extend_schema(
+    request=ProfileImageUploadRequestSerializer,
+    responses={
+        200: ProfileImageUploadResponseSerializer,
+        400: ApiErrorSerializer,
+    },
+)
+@api_view(["POST"])
+@parser_classes([MultiPartParser, FormParser])
 def upload_profile_image(request):
-    player_name = request.POST.get("name")
+    player_name = request.data.get("name")
     image = request.FILES.get("image")
 
     if not player_name or not image:
-        return JsonResponse(
+        return Response(
             {"error": "name and image are required"},
-            status=400,
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     if image.size > MAX_PROFILE_IMAGE_SIZE:
-        return JsonResponse(
+        return Response(
             {"error": "image must be 10MB or smaller"},
-            status=400,
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     extension = image.name.rsplit(".", 1)[-1].lower()
@@ -100,9 +206,9 @@ def upload_profile_image(request):
         extension not in ALLOWED_PROFILE_IMAGE_EXTENSIONS or
         image.content_type not in ALLOWED_PROFILE_IMAGE_TYPES
     ):
-        return JsonResponse(
+        return Response(
             {"error": "upload a JPG, PNG, GIF, or WEBP image"},
-            status=400,
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     player, created = Player.objects.get_or_create(
@@ -111,7 +217,7 @@ def upload_profile_image(request):
     player.profile_image = image
     player.save(update_fields=["profile_image"])
 
-    return JsonResponse({
+    return Response({
         "status": "ok",
         "image_url": player.profile_image.url,
     })
