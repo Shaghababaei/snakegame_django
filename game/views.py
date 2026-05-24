@@ -7,7 +7,7 @@ from .models import Player
 
 # Create your views here.
 def leaderboard(request):
-    scores= Score.objects.selectf_related("player")[:10]
+    scores = Score.objects.select_related("player")[:10]
     return render(request,"game/leaderboard.html",{"scores" : scores})
 
 def play(request):
